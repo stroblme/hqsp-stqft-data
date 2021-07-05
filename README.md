@@ -2,7 +2,9 @@
 
 Data from experiments of the Hybrid Quantum Speech Processing (HQSP) Project.
 
-Exports are created using the *export* class inside *frontend.py*
+Exports are created using the *export* class inside *frontend.py*.
+
+Structure: */ExperimentName/data.p*
 
 ## Featues
 
