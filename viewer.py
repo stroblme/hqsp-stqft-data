@@ -57,7 +57,7 @@ def setFigureFromData(data):
 def rightKey(event):
     global pt
 
-    pt = pt + 1 if pt < len(fileList) else pt
+    pt = pt + 1 if pt < len(fileList)-1 else pt
     setFigureFromFile(fileList[pt])
 
 
