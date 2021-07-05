@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.gridspec import GridSpec
 
 import os
 
@@ -31,7 +32,7 @@ else:
 
 print(f"Viewing data inside {selection}")
 
-root = Tk()
+main = Tk()
 
 fileList = os.listdir(cdir + selection)
 pt = 0
@@ -47,9 +48,19 @@ data = pickle.load(open(cdir + selection + "/" + fileList[pt],'rb'))
 
 
 figure = data["plothandle"]
-figure.axes[0].change_geometry(1,1,1)
+gs = GridSpec(1,1,figure=figure)[0]
+figure.axes[0].set_subplotspec(gs)
 
-canvas = FigureCanvasTkAgg(figure, root)
+canvas = FigureCanvasTkAgg(figure, main)
 canvas.get_tk_widget().grid(row=0, column=0)
 
-root.mainloop()
+def leftKey(event):
+    print("Left key pressed")
+
+def rightKey(event):
+    print("Right key pressed")
+
+frame = Frame(main, width=100, height=100)
+main.bind('<Left>', leftKey)
+main.bind('<Right>', rightKey)
+main.mainloop()
