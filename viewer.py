@@ -71,6 +71,10 @@ fileList = glob.glob(f"{cdir + selection}/*.p")
 pt = 0
 setFigureFromFile(fileList[pt])
 
+# w2 = Scale(main, from_=0, to=200, orient=HORIZONTAL)
+# w2.set(23)
+# w2.pack()
+
 frame = Frame(main, width=1600, height=900)
 main.bind('<Left>', leftKey)
 main.bind('<Right>', rightKey)
