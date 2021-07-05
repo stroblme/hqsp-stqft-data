@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 import pickle
 import matplotlib
-from matplotlib.pyplot import plot
+import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -22,9 +22,12 @@ print(f"Found {len(folderList)} folders in current directory:\n {folderList}")
 
 
 selection = ""
-while(selection not in folderList):
-    idx = input("Choose the desired datafolder as index\n")
-    selection = folderList[int(idx)]
+if len(folderList) == 1:
+    selection = folderList[0]
+else:
+    while(selection not in folderList):
+        idx = input("Choose the desired datafolder as index\n")
+        selection = folderList[int(idx)]
 
 print(f"Viewing data inside {selection}")
 
@@ -44,7 +47,8 @@ data = pickle.load(open(cdir + selection + "/" + fileList[pt],'rb'))
 
 
 figure = data["plothandle"]
-figure.subplot()
+figure.axes[0].change_geometry(1,1,1)
+
 canvas = FigureCanvasTkAgg(figure, root)
 canvas.get_tk_widget().grid(row=0, column=0)
 
