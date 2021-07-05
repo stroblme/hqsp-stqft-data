@@ -7,7 +7,7 @@ matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.gridspec import GridSpec
-
+import glob
 import os
 
 cdir = "./"
@@ -34,33 +34,44 @@ print(f"Viewing data inside {selection}")
 
 main = Tk()
 
-fileList = os.listdir(cdir + selection)
-pt = 0
-prev_pt = 0
 
-if fileList[pt][-2:] != ".p":
-    if prev_pt == pt:
-        pt += 1
-        prev_pt = pt
+
         
-print(f"Showing {fileList[pt]}")
-data = pickle.load(open(cdir + selection + "/" + fileList[pt],'rb'))
+
+def setFigureFromFile(filePath):
+    print(f"Showing {fileList[pt]}")
+
+    data = pickle.load(open(fileList[pt],'rb'))
+    setFigureFromData(data=data)
 
 
-figure = data["plothandle"]
-gs = GridSpec(1,1,figure=figure)[0]
-figure.axes[0].set_subplotspec(gs)
+def setFigureFromData(data):
+    figure = data["plothandle"]
+    gs = GridSpec(1,1,figure=figure)[0]
+    figure.axes[0].set_subplotspec(gs)
 
-canvas = FigureCanvasTkAgg(figure, main)
-canvas.get_tk_widget().grid(row=0, column=0)
+    canvas = FigureCanvasTkAgg(figure, main)
+    canvas.get_tk_widget().grid(row=0, column=0)
 
-def leftKey(event):
-    print("Left key pressed")
 
 def rightKey(event):
-    print("Right key pressed")
+    global pt
 
-frame = Frame(main, width=100, height=100)
+    pt = pt + 1 if pt < len(fileList) else pt
+    setFigureFromFile(fileList[pt])
+
+
+def leftKey(event):
+    global pt
+
+    pt = pt - 1 if pt > 0 else pt
+    setFigureFromFile(fileList[pt])
+
+fileList = glob.glob(f"{cdir + selection}/*.p")
+pt = 0
+setFigureFromFile(fileList[pt])
+
+frame = Frame(main, width=1600, height=900)
 main.bind('<Left>', leftKey)
 main.bind('<Right>', rightKey)
 main.mainloop()
