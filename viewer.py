@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 import pickle
+from git import exc
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
@@ -62,6 +63,31 @@ def setFigureFromData(data):
 
     canvas = FigureCanvasTkAgg(fig, main)
     canvas.get_tk_widget().grid(row=0, column=0)
+
+def matplotlibtest():
+    plt.ion()
+
+    fig, ax= plt.subplots(frameon=False)
+    ax.remove()
+
+    
+    for filePath in fileList:
+        try:
+            data = pickle.load(open(filePath,'rb'))
+        except Exception as e:
+            print(f"Error loading {filePath}: {e}")
+            continue
+
+        cax = data["plothandle"]
+        cax.figure = fig
+        fig.axes.append(cax)
+        fig.add_axes(cax)
+    
+    plt.tight_layout()
+    plt.show()
+    plt.ioff()
+
+matplotlibtest()
 
 
 def rightKey(event):
