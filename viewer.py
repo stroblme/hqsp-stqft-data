@@ -3,6 +3,7 @@ from tkinter.ttk import *
 import pickle
 from git import exc
 import matplotlib
+from matplotlib.backend_bases import MouseEvent
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
@@ -14,7 +15,7 @@ from qbstyles import mpl_style
 
 COLORMAP = 'plasma'
 SHADING='nearest'
-DARK=True
+DARK=False
 
 mpl_style(dark=DARK, minor_ticks=False)
 
@@ -41,31 +42,67 @@ else:
 fileList = glob.glob(f"{cdir + selection}/*.p")
 pt = 0
 
-def setFigureFromFile(filePath):
-    print(f"Showing {fileList[pt]}")
-
-    data = pickle.load(open(fileList[pt],'rb'))
-    setFigureFromData(data=data)
 
 
-def setFigureFromData(data):
-    fig, ax= plt.subplots()
-    ax.remove()
+# def setFigureFromFile(filePath):
+#     print(f"Showing {fileList[pt]}")
 
-    ax = data["plothandle"]
+#     data = pickle.load(open(fileList[pt],'rb'))
+#     setFigureFromData(data=data)
 
-    ax.figure = fig
-    fig.axes.append(ax)
-    fig.add_axes(ax)
+
+# def setFigureFromData(data):
+#     fig, ax= plt.subplots()
+#     ax.remove()
+
+#     ax = data["plothandle"]
+
+#     ax.figure = fig
+#     fig.axes.append(ax)
+#     fig.add_axes(ax)
     
-    gs = GridSpec(1,1,figure=fig)[0]
-    fig.axes[0].set_subplotspec(gs)
+#     gs = GridSpec(1,1,figure=fig)[0]
+#     fig.axes[0].set_subplotspec(gs)
 
-    canvas = FigureCanvasTkAgg(fig, main)
-    canvas.get_tk_widget().grid(row=0, column=0)
+#     canvas = FigureCanvasTkAgg(fig, main)
+#     canvas.get_tk_widget().grid(row=0, column=0)
+
+clickEventHandled = True
+def on_click(event):
+    """Enlarge or restore the selected axis."""
+    global clickEventHandled
+
+    if not clickEventHandled:
+        return
+
+    ax = event.inaxes
+    if ax is not None:
+        # Occurs when a region not in an axis is clicked...
+        if int(event.button) is 1:
+            # On left click, zoom the selected axes
+            ax._orig_position = ax.get_position()
+            ax.set_position([0.1, 0.1, 0.85, 0.85])
+            for axis in event.canvas.figure.axes:
+                # Hide all the other axes...
+                if axis is not ax:
+                    axis.set_visible(False)
+            event.canvas.draw()
+
+        elif int(event.button) is 3:
+            # On right click, restore the axes
+            try:
+                ax.set_position(ax._orig_position)
+                for axis in event.canvas.figure.axes:
+                    axis.set_visible(True)
+            except AttributeError:
+                # If we haven't zoomed, ignore...
+                pass
+
+            event.canvas.draw()
+
+    clickEventHandled = True
 
 def matplotlibtest():
-    plt.ion()
 
     fig, ax= plt.subplots(frameon=False)
     ax.remove()
@@ -77,54 +114,107 @@ def matplotlibtest():
         except Exception as e:
             print(f"Error loading {filePath}: {e}")
             continue
+        
+        if "plothandle" not in data.keys():
+            continue
 
         cax = data["plothandle"]
         cax.figure = fig
         fig.axes.append(cax)
         fig.add_axes(cax)
     
+    fig.canvas.mpl_connect('button_press_event', on_click)
     plt.tight_layout()
     plt.show()
-    plt.ioff()
 
-matplotlibtest()
+# matplotlibtest()
+
+def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None):
+    # fighandle = plt.figure()
+
+    if subplot is not None:
+        plt.subplot(*subplot,frameon=False)
+        plt.subplots_adjust(wspace=0.58)
+    else:
+        plt.figure(figsize = (10, 6))
+
+    if x2Data is None:
+        plt.stem(x1Data, yData)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+    else:
+        plt.pcolormesh(x2Data, x1Data, yData, cmap=COLORMAP, shading=SHADING)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+            
+    plt.title(title)
+
+    plt.tight_layout()
+
+def createPlots():
+    for filePath in fileList:
+        try:
+            data = pickle.load(open(filePath,'rb'))
+        except Exception as e:
+            print(f"Error loading {filePath}: {e}")
+            continue
+        
+        if "plothandle" not in data.keys():
+            continue
+
+        yData = data["plothandle"]["yData"]
+        x1Data = data["plothandle"]["x1Data"]
+        title = data["plothandle"]["title"]
+        xlabel = data["plothandle"]["xlabel"]
+        ylabel = data["plothandle"]["ylabel"]
+        x2Data = data["plothandle"]["x2Data"]
+        subplot = data["plothandle"]["subplot"]
+
+        show(yData,x1Data,title,xlabel,ylabel,x2Data,subplot)
+
+    fig = plt.gcf()
+    fig.canvas.mpl_connect('button_press_event', on_click)
+    plt.show()
+
+createPlots()
+
+# exit
+
+# def rightKey(event):
+#     global pt
+
+#     tpt = pt + 1 if pt < len(fileList)-1 else pt
+#     setFigureFromFile(fileList[pt])
+#     pt = tpt
 
 
-def rightKey(event):
-    global pt
+# def leftKey(event):
+#     global pt
 
-    tpt = pt + 1 if pt < len(fileList)-1 else pt
-    setFigureFromFile(fileList[pt])
-    pt = tpt
-
-
-def leftKey(event):
-    global pt
-
-    tpt = pt - 1 if pt > 0 else pt
-    setFigureFromFile(fileList[pt])
-    pt = tpt
+#     tpt = pt - 1 if pt > 0 else pt
+#     setFigureFromFile(fileList[pt])
+#     pt = tpt
 
 
-def resize(event):
-    setFigureFromFile(fileList[pt])
+# def resize(event):
+#     setFigureFromFile(fileList[pt])
 
 
-def startup():
+# def startup():
     
-    setFigureFromFile(fileList[pt])
+#     setFigureFromFile(fileList[pt])
 
-# w2 = Scale(main, from_=0, to=200, orient=HORIZONTAL)
-# w2.set(23)
-# w2.pack()
+# # w2 = Scale(main, from_=0, to=200, orient=HORIZONTAL)
+# # w2.set(23)
+# # w2.pack()
 
-main = Tk()
-frame = Frame(main)
-main.bind('<Left>', leftKey)
-main.bind('<Right>', rightKey)
-# main.bind("<Configure>", resize)
+# main = Tk()
+# frame = Frame(main)
+# main.bind('<Left>', leftKey)
+# main.bind('<Right>', rightKey)
+# # main.bind("<Configure>", resize)
 
 
-startup()
+# startup()
 
-main.mainloop()
+# main.mainloop()
