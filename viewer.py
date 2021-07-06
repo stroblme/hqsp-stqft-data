@@ -9,6 +9,27 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.gridspec import GridSpec
 import glob
 import os
+from qbstyles import mpl_style
+
+COLORMAP = 'plasma'
+SHADING='nearest'
+DARK=True
+
+
+def enableInteractive():
+    global plt
+    plt.ion()
+
+def disableInteractive():
+    global plt
+    plt.ioff()
+
+def setTheme(dark=False):
+    DARK = dark
+
+    mpl_style(dark=DARK, minor_ticks=False)
+
+mpl_style(dark=DARK, minor_ticks=False)
 
 cdir = "./"
 
@@ -30,13 +51,8 @@ else:
         idx = input("Choose the desired datafolder as index\n")
         selection = folderList[int(idx)]
 
-print(f"Viewing data inside {selection}")
-
-main = Tk()
-
-
-
-        
+fileList = glob.glob(f"{cdir + selection}/*.p")
+pt = 0
 
 def setFigureFromFile(filePath):
     print(f"Showing {fileList[pt]}")
@@ -46,11 +62,19 @@ def setFigureFromFile(filePath):
 
 
 def setFigureFromData(data):
-    figure = data["plothandle"]
-    gs = GridSpec(1,1,figure=figure)[0]
-    figure.axes[0].set_subplotspec(gs)
+    fig, ax= plt.subplots()
+    ax.remove()
 
-    canvas = FigureCanvasTkAgg(figure, main)
+    ax = data["plothandle"]
+
+    ax.figure = fig
+    fig.axes.append(ax)
+    fig.add_axes(ax)
+    
+    gs = GridSpec(1,1,figure=fig)[0]
+    fig.axes[0].set_subplotspec(gs)
+
+    canvas = FigureCanvasTkAgg(fig, main)
     canvas.get_tk_widget().grid(row=0, column=0)
 
 
@@ -67,15 +91,25 @@ def leftKey(event):
     pt = pt - 1 if pt > 0 else pt
     setFigureFromFile(fileList[pt])
 
-fileList = glob.glob(f"{cdir + selection}/*.p")
-pt = 0
-setFigureFromFile(fileList[pt])
+def resize(event):
+    setFigureFromFile(fileList[pt])
+
+
+def startup():
+    
+    setFigureFromFile(fileList[pt])
 
 # w2 = Scale(main, from_=0, to=200, orient=HORIZONTAL)
 # w2.set(23)
 # w2.pack()
 
-frame = Frame(main, width=1600, height=900)
+main = Tk()
+frame = Frame(main)
 main.bind('<Left>', leftKey)
 main.bind('<Right>', rightKey)
+# main.bind("<Configure>", resize)
+
+
+startup()
+
 main.mainloop()
