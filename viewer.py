@@ -55,7 +55,7 @@ pt = 0
 #     fig, ax= plt.subplots()
 #     ax.remove()
 
-#     ax = data["plothandle"]
+#     ax = data["plotdata"]
 
 #     ax.figure = fig
 #     fig.axes.append(ax)
@@ -115,10 +115,10 @@ def matplotlibtest():
             print(f"Error loading {filePath}: {e}")
             continue
         
-        if "plothandle" not in data.keys():
+        if "plotdata" not in data.keys():
             continue
 
-        cax = data["plothandle"]
+        cax = data["plotdata"]
         cax.figure = fig
         fig.axes.append(cax)
         fig.add_axes(cax)
@@ -159,16 +159,16 @@ def createPlots():
             print(f"Error loading {filePath}: {e}")
             continue
         
-        if "plothandle" not in data.keys():
+        if "plotdata" not in data.keys():
             continue
 
-        yData = data["plothandle"]["yData"]
-        x1Data = data["plothandle"]["x1Data"]
-        title = data["plothandle"]["title"]
-        xlabel = data["plothandle"]["xlabel"]
-        ylabel = data["plothandle"]["ylabel"]
-        x2Data = data["plothandle"]["x2Data"]
-        subplot = data["plothandle"]["subplot"]
+        yData = data["plotdata"]["yData"]
+        x1Data = data["plotdata"]["x1Data"]
+        title = data["plotdata"]["title"]
+        xlabel = data["plotdata"]["xlabel"]
+        ylabel = data["plotdata"]["ylabel"]
+        x2Data = data["plotdata"]["x2Data"]
+        subplot = data["plotdata"]["subplot"]
 
         show(yData,x1Data,title,xlabel,ylabel,x2Data,subplot)
 
