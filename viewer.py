@@ -15,20 +15,6 @@ COLORMAP = 'plasma'
 SHADING='nearest'
 DARK=True
 
-
-def enableInteractive():
-    global plt
-    plt.ion()
-
-def disableInteractive():
-    global plt
-    plt.ioff()
-
-def setTheme(dark=False):
-    DARK = dark
-
-    mpl_style(dark=DARK, minor_ticks=False)
-
 mpl_style(dark=DARK, minor_ticks=False)
 
 cdir = "./"
@@ -81,15 +67,18 @@ def setFigureFromData(data):
 def rightKey(event):
     global pt
 
-    pt = pt + 1 if pt < len(fileList)-1 else pt
+    tpt = pt + 1 if pt < len(fileList)-1 else pt
     setFigureFromFile(fileList[pt])
+    pt = tpt
 
 
 def leftKey(event):
     global pt
 
-    pt = pt - 1 if pt > 0 else pt
+    tpt = pt - 1 if pt > 0 else pt
     setFigureFromFile(fileList[pt])
+    pt = tpt
+
 
 def resize(event):
     setFigureFromFile(fileList[pt])
