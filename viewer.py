@@ -102,7 +102,7 @@ def on_click(event):
 
     clickEventHandled = True
 
-def matplotlibtest():
+def importAxes():
 
     fig, ax= plt.subplots(frameon=False)
     ax.remove()
@@ -160,7 +160,9 @@ def createPlots():
             continue
         
         if "plotdata" not in data.keys():
+            print(f"Skipping {filePath}")
             continue
+    
 
         yData = data["plotdata"]["yData"]
         x1Data = data["plotdata"]["x1Data"]
@@ -172,8 +174,8 @@ def createPlots():
 
         show(yData,x1Data,title,xlabel,ylabel,x2Data,subplot)
 
-    fig = plt.gcf()
-    fig.canvas.mpl_connect('button_press_event', on_click)
+    # fig = plt.gcf()
+    # fig.canvas.mpl_connect('button_press_event', on_click)
     plt.show()
 
 createPlots()
