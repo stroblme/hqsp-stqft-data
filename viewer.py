@@ -174,8 +174,8 @@ def createPlots():
 
         show(yData,x1Data,title,xlabel,ylabel,x2Data,subplot)
 
-    # fig = plt.gcf()
-    # fig.canvas.mpl_connect('button_press_event', on_click)
+    fig = plt.gcf()
+    fig.canvas.mpl_connect('button_press_event', on_click)
     plt.show()
 
 createPlots()
