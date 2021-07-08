@@ -131,27 +131,44 @@ def importAxes():
 
 # matplotlibtest()
 
-def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None):
-    # fighandle = plt.figure()
+def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None, plotType='stem', log=False):
+        # fighandle = plt.figure()
 
-    if subplot is not None:
-        plt.subplot(*subplot,frameon=False)
-        plt.subplots_adjust(wspace=0.58)
-    else:
-        plt.figure(figsize = (10, 6))
+        if subplot is not None:
+            plt.subplot(*subplot,frameon=False)
+            plt.subplots_adjust(wspace=0.58)
+        else:
+            plt.figure(figsize = (10, 6))
 
-    if x2Data is None:
-        plt.stem(x1Data, yData)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-    else:
-        plt.pcolormesh(x2Data, x1Data, yData, cmap=COLORMAP, shading=SHADING)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-            
-    plt.title(title)
+        fig = plt.gcf()
+        fig.set_size_inches(16,9)
+        fig.canvas.mpl_connect('button_press_event', on_click)
+        plt.tight_layout()
 
-    plt.tight_layout()
+        if x2Data is None:
+            if log:
+                ax = plt.gca()
+                ax.set_yscale('log')
+                plt.autoscale(False)
+                plt.ylim(0.1,1)
+                plt.xlim(min(x1Data), max(x1Data))
+
+            if plotType == 'stem':
+                plt.stem(x1Data, yData)
+            else:
+                plt.plot(x1Data, yData, 'o--')
+
+
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+        else:
+            plt.pcolormesh(x2Data, x1Data, yData, cmap=COLORMAP, shading=SHADING)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+                
+        plt.title(title)
+
+        return {'x1Data':x1Data, 'yData':yData, 'x2Data':x2Data, 'subplot':subplot, 'plotType':plotType, 'log':log, 'xlabel':xlabel, 'ylabel':ylabel, 'title':title}
 
 def createPlots():
     for filePath in fileList:
@@ -173,8 +190,10 @@ def createPlots():
         ylabel = data["plotdata"]["ylabel"]
         x2Data = data["plotdata"]["x2Data"]
         subplot = data["plotdata"]["subplot"]
+        plotType = data["plotdata"]["plotType"]
+        log = data["plotdata"]["log"]
 
-        show(yData,x1Data,title,xlabel,ylabel,x2Data,subplot)
+        show(yData=yData,x1Data=x1Data,title=title,xlabel=xlabel,ylabel=ylabel,x2Data=x2Data,subplot=subplot,plotType=plotType,log=log)
 
     fig = plt.gcf()
     fig.canvas.mpl_connect('button_press_event', on_click)
