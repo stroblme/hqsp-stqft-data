@@ -38,8 +38,11 @@ if len(folderList) == 1:
     selection = folderList[0]
 else:
     while(selection not in folderList):
-        idx = input("Choose the desired datafolder as index\n")
-        selection = folderList[int(idx)]
+        idx = input("Choose the desired datafolder as index (starting from 1)\n")
+        try:
+            selection = folderList[int(idx+1)]
+        except IndexError:
+            continue
 
 fileList = glob.glob(f"{cdir + selection}/*.p")
 pt = 0
