@@ -20,13 +20,15 @@ DARK=False
 mpl_style(dark=DARK, minor_ticks=False)
 
 cdir = "./"
+ignoreList = ["venv", ".vscode"]
 
 content = os.listdir(cdir)
 folderList = list()
 
 for c in content:
     if os.path.isdir(c):
-        folderList.append(c)
+        if c not in ignoreList:
+            folderList.append(c)
 
 print(f"Found {len(folderList)} folders in current directory:\n {folderList}")
 
