@@ -5,6 +5,7 @@ from git import exc
 import matplotlib
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.pyplot as plt
+from numpy import mat
 matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -47,94 +48,45 @@ else:
 fileList = glob.glob(f"{cdir + selection}/*.p")
 pt = 0
 
-
-
-# def setFigureFromFile(filePath):
-#     print(f"Showing {fileList[pt]}")
-
-#     data = pickle.load(open(fileList[pt],'rb'))
-#     setFigureFromData(data=data)
-
-
-# def setFigureFromData(data):
-#     fig, ax= plt.subplots()
-#     ax.remove()
-
-#     ax = data["plotdata"]
-
-#     ax.figure = fig
-#     fig.axes.append(ax)
-#     fig.add_axes(ax)
-    
-#     gs = GridSpec(1,1,figure=fig)[0]
-#     fig.axes[0].set_subplotspec(gs)
-
-#     canvas = FigureCanvasTkAgg(fig, main)
-#     canvas.get_tk_widget().grid(row=0, column=0)
-
-clickEventHandled = True
-def on_click(event):
-    """Enlarge or restore the selected axis."""
-    global clickEventHandled
-
-    if not clickEventHandled:
-        return
-
-    ax = event.inaxes
-    if ax is not None:
-        # Occurs when a region not in an axis is clicked...
-        if int(event.button) is 1:
-            # On left click, zoom the selected axes
-            ax._orig_position = ax.get_position()
-            ax.set_position([0.1, 0.1, 0.85, 0.85])
-            for axis in event.canvas.figure.axes:
-                # Hide all the other axes...
-                if axis is not ax:
-                    axis.set_visible(False)
-            event.canvas.draw()
-
-        elif int(event.button) is 3:
-            # On right click, restore the axes
-            try:
-                ax.set_position(ax._orig_position)
-                for axis in event.canvas.figure.axes:
-                    axis.set_visible(True)
-            except AttributeError:
-                # If we haven't zoomed, ignore...
-                pass
-
-            event.canvas.draw()
+class matplotLibViewer:
 
     clickEventHandled = True
 
-def importAxes():
+    def on_click(self, event):
+        """Enlarge or restore the selected axis."""
+        self.clickEventHandled
 
-    fig, ax= plt.subplots(frameon=False)
-    ax.remove()
+        if not self.clickEventHandled:
+            return
 
-    
-    for filePath in fileList:
-        try:
-            data = pickle.load(open(filePath,'rb'))
-        except Exception as e:
-            print(f"Error loading {filePath}: {e}")
-            continue
-        
-        if "plotdata" not in data.keys():
-            continue
+        ax = event.inaxes
+        if ax is not None:
+            # Occurs when a region not in an axis is clicked...
+            if int(event.button) is 1:
+                # On left click, zoom the selected axes
+                ax._orig_position = ax.get_position()
+                ax.set_position([0.1, 0.1, 0.85, 0.85])
+                for axis in event.canvas.figure.axes:
+                    # Hide all the other axes...
+                    if axis is not ax:
+                        axis.set_visible(False)
+                event.canvas.draw()
 
-        cax = data["plotdata"]
-        cax.figure = fig
-        fig.axes.append(cax)
-        fig.add_axes(cax)
-    
-    fig.canvas.mpl_connect('button_press_event', on_click)
-    plt.tight_layout()
-    plt.show()
+            elif int(event.button) is 3:
+                # On right click, restore the axes
+                try:
+                    ax.set_position(ax._orig_position)
+                    for axis in event.canvas.figure.axes:
+                        axis.set_visible(True)
+                except AttributeError:
+                    # If we haven't zoomed, ignore...
+                    pass
 
-# matplotlibtest()
+                event.canvas.draw()
 
-def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None, plotType='stem', log=False):
+        self.clickEventHandled = True
+
+    def show(self, yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None, plotType='stem', log=False):
         # fighandle = plt.figure()
 
         if subplot is not None:
@@ -145,7 +97,7 @@ def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None, plotTy
 
         fig = plt.gcf()
         fig.set_size_inches(16,9)
-        fig.canvas.mpl_connect('button_press_event', on_click)
+        fig.canvas.mpl_connect('button_press_event', self.on_click)
         plt.tight_layout()
 
         if x2Data is None:
@@ -173,36 +125,38 @@ def show(yData, x1Data, title, xlabel, ylabel, x2Data=None, subplot=None, plotTy
 
         return {'x1Data':x1Data, 'yData':yData, 'x2Data':x2Data, 'subplot':subplot, 'plotType':plotType, 'log':log, 'xlabel':xlabel, 'ylabel':ylabel, 'title':title}
 
-def createPlots():
-    for filePath in fileList:
-        try:
-            data = pickle.load(open(filePath,'rb'))
-        except Exception as e:
-            print(f"Error loading {filePath}: {e}")
-            continue
+    def createPlots(self):
+        for filePath in fileList:
+            try:
+                data = pickle.load(open(filePath,'rb'))
+            except Exception as e:
+                print(f"Error loading {filePath}: {e}")
+                continue
+            
+            if "plotdata" not in data.keys():
+                print(f"Skipping {filePath}")
+                continue
         
-        if "plotdata" not in data.keys():
-            print(f"Skipping {filePath}")
-            continue
-    
 
-        yData = data["plotdata"]["yData"]
-        x1Data = data["plotdata"]["x1Data"]
-        title = data["plotdata"]["title"]
-        xlabel = data["plotdata"]["xlabel"]
-        ylabel = data["plotdata"]["ylabel"]
-        x2Data = data["plotdata"]["x2Data"]
-        subplot = data["plotdata"]["subplot"]
-        plotType = data["plotdata"]["plotType"]
-        log = data["plotdata"]["log"]
+            yData = data["plotdata"]["yData"]
+            x1Data = data["plotdata"]["x1Data"]
+            title = data["plotdata"]["title"]
+            xlabel = data["plotdata"]["xlabel"]
+            ylabel = data["plotdata"]["ylabel"]
+            x2Data = data["plotdata"]["x2Data"]
+            subplot = data["plotdata"]["subplot"]
+            plotType = data["plotdata"]["plotType"]
+            log = data["plotdata"]["log"]
 
-        show(yData=yData,x1Data=x1Data,title=title,xlabel=xlabel,ylabel=ylabel,x2Data=x2Data,subplot=subplot,plotType=plotType,log=log)
+            self.show(yData=yData,x1Data=x1Data,title=title,xlabel=xlabel,ylabel=ylabel,x2Data=x2Data,subplot=subplot,plotType=plotType,log=log)
 
-    fig = plt.gcf()
-    fig.canvas.mpl_connect('button_press_event', on_click)
-    plt.show()
+        fig = plt.gcf()
+        fig.canvas.mpl_connect('button_press_event', self.on_click)
+        plt.show()
 
-createPlots()
+mplv = matplotLibViewer()
+
+mplv.createPlots()
 
 # exit
 
