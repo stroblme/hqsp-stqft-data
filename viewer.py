@@ -16,7 +16,7 @@ from qbstyles import mpl_style
 
 COLORMAP = 'plasma'
 SHADING='nearest'
-DARK=False
+DARK=True
 
 mpl_style(dark=DARK, minor_ticks=False)
 
